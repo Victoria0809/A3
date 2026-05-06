@@ -1,32 +1,36 @@
+import streamlit as st
+import string
 import nltk
-import ssl
 import os
 
-# 修复SSL证书问题（Streamlit Cloud需要）
-try:
-    _create_unverified_https_context = ssl._create_unverified_context
-except AttributeError:
-    pass
-else:
-    ssl._create_default_https_context = _create_unverified_https_context
+# ======== 关键修改：设置 NLTK 数据路径 ========
+current_dir = os.path.dirname(os.path.abspath(__file__))
+nltk_data_path = os.path.join(current_dir, 'nltk_data')
+nltk.data.path.append(nltk_data_path)
+# =================================================
 
-# 自动下载NLTK资源
-print("正在下载NLTK资源...")
-nltk.download('stopwords', quiet=True)
-nltk.download('punkt', quiet=True)
-print("NLTK资源下载完成！")
+# 现在可以安全导入和使用 NLTK
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+
+# 验证资源是否可用
+try:
+    tokens = word_tokenize("This is a test sentence.")
+    print(f"✓ punkt_tab 工作正常")
+    
+    stop_words = set(stopwords.words('english'))
+    print(f"✓ stopwords 工作正常，共 {len(stop_words)} 个停用词")
+    
+except Exception as e:
+    print(f"NLTK 资源加载失败: {e}")
 
 # 导入其他库
-import streamlit as st
 import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD, PCA
-from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
-import string
 from collections import Counter
 
 st.set_page_config(
